@@ -36,7 +36,9 @@ def pick(bank, state, kind, date, taken):
 
     def ok(r):
         return (r["Status"] == CFG["only_status"] and r["ID"] not in blocked
-                and len(r["Original"]) <= limit and r["Hindi meaning"] and r["English meaning"])
+                and len(r["Original"]) <= limit and r["Hindi meaning"] and r["English meaning"]
+                # Hindi and Sanskrit verses are used only once their meaning is written as an essence, not a literal translation
+                and (r["Religion / section"] not in CFG.get("essence_only_sections", []) or r.get("Meaning style") == "Essence"))
 
     wanted = CFG["rotation"][kind][date.weekday()]
     pool = [r for r in bank.values() if ok(r) and r["Religion / section"] == wanted]
@@ -55,7 +57,7 @@ def caption(row):
         row["Original"], "", row["Hindi meaning"], "", row["English meaning"], "",
         f"— {row['Author / Text']}, {row['Reference']}", ".",
         "अनहद · Anahad — a verse a day from the world's sacred texts.",
-        "The original text is the authority; the meanings are our own plain renderings.", ".",
+        "The lines under the verse give its essence in our own words, not a word-for-word translation.", ".",
         (tags["_all"] + " " + tags.get(row["Religion / section"], "")).strip(),
     ])
 

@@ -31,7 +31,7 @@ The token lasts 60 days; the Friday run extends it each week. If publishing ever
 
 ## What is in here
 
-- `data/verse_bank.csv`: the verse bank. Only rows whose Status is "Matched to source text" are used.
+- `data/verse_bank.csv`: the verse bank. Only rows whose Status is "Matched to source text" are used. Hindi and Sanskrit verses are used only when their "Meaning style" is "Essence" (the message of the verse, not a word-for-word translation).
 - `data/state.json`: which verses have been used or rejected.
 - `config.json`: which tradition is used on which weekday, hashtags, labels, posting timezone.
 - `scripts/plan_week.py`: picks verses and draws the posts and reels.

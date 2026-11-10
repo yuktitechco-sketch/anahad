@@ -4,19 +4,59 @@
   "timezone_offset_hours": 5.5,
   "graph_api_version": "v25.0",
   "only_status": "Matched to source text",
-  "max_chars": {"post": 280, "reel": 170},
+  "max_chars": {
+    "post": 280,
+    "reel": 170
+  },
   "rotation": {
-    "post": ["Hinduism - Bhagavad Gita", "Tamil classics", "Christianity", "Buddhism", "Hinduism - Bhagavad Gita", "Islam - Quran and Hadith", "Confucianism"],
-    "reel": ["Hinduism - Sant and bhakti", "Buddhism", "Hinduism - Bhagavad Gita", "Christianity", "Tamil classics", "Hinduism - Bhagavad Gita", "Islam - Quran and Hadith"]
+    "post": [
+      "Hinduism - Bhagavad Gita",
+      "Tamil classics",
+      "Christianity",
+      "Buddhism",
+      "Hinduism - Bhagavad Gita",
+      "Islam - Quran and Hadith",
+      "Confucianism"
+    ],
+    "reel": [
+      "Hinduism - Sant and bhakti",
+      "Buddhism",
+      "Hinduism - Bhagavad Gita",
+      "Christianity",
+      "Tamil classics",
+      "Hinduism - Bhagavad Gita",
+      "Islam - Quran and Hadith"
+    ]
   },
   "tags": {
-    "Hinduism - Bhagavad Gita": ["श्लोक", "SHLOKA"],
-    "Hinduism - Sant and bhakti": ["मानस", "MANAS"],
-    "Tamil classics": ["कुरल", "KURAL"],
-    "Buddhism": ["धम्मपद", "DHAMMAPADA"],
-    "Christianity": ["वचन", "SCRIPTURE"],
-    "Islam - Quran and Hadith": ["आयत", "AYAH"],
-    "Confucianism": ["सूक्ति", "ANALECTS"]
+    "Hinduism - Bhagavad Gita": [
+      "श्लोक",
+      "SHLOKA"
+    ],
+    "Hinduism - Sant and bhakti": [
+      "मानस",
+      "MANAS"
+    ],
+    "Tamil classics": [
+      "कुरल",
+      "KURAL"
+    ],
+    "Buddhism": [
+      "धम्मपद",
+      "DHAMMAPADA"
+    ],
+    "Christianity": [
+      "वचन",
+      "SCRIPTURE"
+    ],
+    "Islam - Quran and Hadith": [
+      "आयत",
+      "AYAH"
+    ],
+    "Confucianism": [
+      "सूक्ति",
+      "ANALECTS"
+    ]
   },
   "hashtags": {
     "_all": "#anahad #अनहद #dailyverse #wisdom #spirituality #sacredtexts",
@@ -27,5 +67,10 @@
     "Christianity": "#bible #scripture #verseoftheday #kjv",
     "Islam - Quran and Hadith": "#quran #ayah #islam #quranverses",
     "Confucianism": "#confucius #analects #chinesephilosophy"
-  }
+  },
+  "essence_only_sections": [
+    "Hinduism - Bhagavad Gita",
+    "Hinduism - Sant and bhakti",
+    "Hinduism - Other scripture"
+  ]
 }
