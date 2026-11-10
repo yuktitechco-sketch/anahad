@@ -14,7 +14,7 @@ jobs:
     if: >-
       github.event.issue.pull_request &&
       github.event.comment.author_association == 'OWNER' &&
-      (startsWith(github.event.comment.body, '/swap ') || startsWith(github.event.comment.body, '/render'))
+      (startsWith(github.event.comment.body, '/swap ') || startsWith(github.event.comment.body, '/audio ') || startsWith(github.event.comment.body, '/render'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,18 +34,23 @@ jobs:
           PR: ${{ github.event.issue.number }}
           COMMENT: ${{ github.event.comment.body }}
           PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
         run: |
           set -- $(printf '%s' "$COMMENT" | head -n 1 | tr -cd 'a-zA-Z0-9/ -')
           BRANCH=$(git branch --show-current)
           if [ "$1" = "/swap" ]; then
             python3 scripts/plan_week.py --swap "$2" "$3"
+          elif [ "$1" = "/audio" ]; then
+            shift
+            python3 scripts/plan_week.py --audio "$@"
           else
             python3 scripts/plan_week.py --rerender "${BRANCH#week-}"
           fi
           git config user.name "anahad-bot"
           git config user.email "anahad-bot@users.noreply.github.com"
           git add queue reviews data
-          git commit -q -m "Revised: $1 $2 $3"
+          git commit -q -m "Revised from a comment"
           git push -q origin "$BRANCH"
           gh pr edit "$PR" --body-file "$RUNNER_TEMP/pr_body.md"
           gh pr comment "$PR" --body "Done. The review sheet above is updated (refresh the page if the old picture still shows)."

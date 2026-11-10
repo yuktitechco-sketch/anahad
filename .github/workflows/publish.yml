@@ -9,7 +9,7 @@ on:
       kind:
         description: "What to publish"
         type: choice
-        options: [post, reel, check]
+        options: [post, reel, check, audio]
         default: check
       date:
         description: "Date, as YYYY-MM-DD (leave empty for today)"
@@ -31,6 +31,7 @@ jobs:
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           MEDIA_BASE_URL: ${{ vars.MEDIA_BASE_URL }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
           KIND: ${{ inputs.kind || (github.event.schedule == '0 2 * * *' && 'post' || 'reel') }}
           DATE: ${{ inputs.date }}
         run: |

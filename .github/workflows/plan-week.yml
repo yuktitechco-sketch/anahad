@@ -32,6 +32,8 @@ jobs:
           START: ${{ inputs.start }}
           DAYS: ${{ inputs.days || '7' }}
           PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
         run: |
           if [ -n "$START" ]; then
             python3 scripts/plan_week.py --start "$START" --days "$DAYS"
@@ -53,9 +55,3 @@ jobs:
           gh pr create --base main --head "week-$START_DAY" \
             --title "Approve posts for $START_DAY to $END_DAY" \
             --body-file "$RUNNER_TEMP/pr_body.md"
-      - name: Keep the Instagram token alive
-        if: always()
-        continue-on-error: true
-        env:
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-        run: python3 scripts/publish.py refresh

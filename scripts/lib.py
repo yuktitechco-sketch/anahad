@@ -226,7 +226,7 @@ svg.sky {{ position: absolute; inset: 0; }}
 
 
 def render_reel(row, mp4, cover_jpg):
-    """1080x1920, 15 second reel: the verse, then its meanings, fade in one after another over a soft drone."""
+    """1080x1920, 15 second reel: the verse, then its meanings, fade in one after another. The sound track is silent."""
     tmp = tempfile.mkdtemp()
     try:
         frames = []
@@ -237,17 +237,15 @@ def render_reel(row, mp4, cover_jpg):
         cmd = ["ffmpeg", "-y", "-loglevel", "error"]
         for png in frames:
             cmd += ["-loop", "1", "-framerate", "30", "-t", "16", "-i", png]
-        for hz in (136.1, 204.15, 272.2):  # a soft Sa-Pa-Sa drone, generated here, so no music licence is involved
-            cmd += ["-f", "lavfi", "-t", "15", "-i", f"sine=frequency={hz}:sample_rate=44100"]
+        # a silent sound track: the music is attached by Instagram when the reel is published
+        cmd += ["-f", "lavfi", "-t", "15", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100"]
         offsets = [0.8, 5.0, 8.5, 11.5]
         chain, last = [], "0:v"
         for n, off in enumerate(offsets, start=1):
             chain.append(f"[{last}][{n}:v]xfade=transition=fade:duration=1:offset={off}[x{n}]")
             last = f"x{n}"
         chain.append(f"[{last}]fade=t=out:st=14.4:d=0.6,format=yuv420p[v]")
-        chain.append("[5:a][6:a][7:a]amix=inputs=3:normalize=0,tremolo=f=0.15:d=0.35,aecho=0.8:0.7:70:0.35,"
-                     "lowpass=f=1100,volume=0.28,afade=t=in:d=2.5,afade=t=out:st=12.5:d=2.5[a]")
-        cmd += ["-filter_complex", ";".join(chain), "-map", "[v]", "-map", "[a]", "-t", "15", "-r", "30",
+        cmd += ["-filter_complex", ";".join(chain), "-map", "[v]", "-map", "5:a", "-t", "15", "-r", "30",
                 "-c:v", "libx264", "-preset", "medium", "-crf", "24", "-profile:v", "high", "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-movflags", "+faststart", mp4]
         subprocess.run(cmd, check=True)

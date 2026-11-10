@@ -72,5 +72,14 @@
     "Hinduism - Bhagavad Gita",
     "Hinduism - Sant and bhakti",
     "Hinduism - Other scripture"
-  ]
+  ],
+  "login": "facebook",
+  "audio": {
+    "mode": "trending",
+    "type": "music",
+    "audio_volume": 100,
+    "no_music_sections": [
+      "Islam - Quran and Hadith"
+    ]
+  }
 }
