@@ -41,11 +41,16 @@ jobs:
             python3 scripts/plan_week.py --days "$DAYS"
           fi
       - name: Open the approval request
+        if: steps.plan.outputs.start != ''
         env:
           GH_TOKEN: ${{ github.token }}
           START_DAY: ${{ steps.plan.outputs.start }}
           END_DAY: ${{ steps.plan.outputs.end }}
         run: |
+          if git ls-remote --exit-code --heads origin "week-$START_DAY" > /dev/null; then
+            echo "The week of $START_DAY is already waiting for approval; nothing to do."
+            exit 0
+          fi
           git config user.name "anahad-bot"
           git config user.email "anahad-bot@users.noreply.github.com"
           git checkout -b "week-$START_DAY"

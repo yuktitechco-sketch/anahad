@@ -163,6 +163,9 @@ def main():
     else:
         t = lib.today_local()
         start = t + datetime.timedelta(days=(7 - t.weekday()) % 7 or 7)  # next Monday
+        if os.path.exists(os.path.join(day_dir(start), "day.json")):
+            print(f"The week of {start} is already prepared; nothing to do.")
+            return
     dates, reels = [], []
     for n in range(a.days):
         date = start + datetime.timedelta(days=n)
