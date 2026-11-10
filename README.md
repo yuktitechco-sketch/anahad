@@ -30,6 +30,8 @@ To change a prepared week, comment on the approval request (see also "Music on r
 
 The long-lived token lasts about 60 days and cannot be extended automatically on this route. When publishing fails with a token error (GitHub emails you about failed runs), repeat step 4 and replace the secret.
 
+To avoid renewing: with the long-lived user token, ask the Graph API Explorer for `me/accounts?fields=name,access_token` and store the Page's `access_token` as the secret instead. Meta says such Page tokens have no expiry date. If the `audio` test fails with that token, go back to the user token.
+
 ## Music on reels
 
 The reel video itself is silent. When a week is prepared, each reel is given one of the tracks Instagram returns as trending at that moment, a different track for each day, and the approval request lists the track next to each reel. Instagram adds the track when the reel is published.

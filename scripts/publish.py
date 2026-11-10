@@ -36,7 +36,10 @@ def call(method, path, **params):
 
 def account():
     if FACEBOOK:  # the Instagram account hangs off the Facebook Page it is linked to
-        pages = call("GET", "/me/accounts", fields="name,instagram_business_account{id,username}").get("data", [])
+        try:  # a user token lists the Pages it manages
+            pages = call("GET", "/me/accounts", fields="name,instagram_business_account{id,username}").get("data", [])
+        except SystemExit:  # a Page token is the Page itself
+            pages = [call("GET", "/me", fields="name,instagram_business_account{id,username}")]
         linked = [p["instagram_business_account"] for p in pages if p.get("instagram_business_account")]
         want = os.environ.get("IG_USER_ID")
         for acc in linked:
