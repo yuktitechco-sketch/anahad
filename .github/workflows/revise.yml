@@ -1,0 +1,51 @@
+name: 3. Change a prepared week (comment commands)
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  revise:
+    # only the repository owner's comments on a pull request are obeyed
+    if: >-
+      github.event.issue.pull_request &&
+      github.event.comment.author_association == 'OWNER' &&
+      (startsWith(github.event.comment.body, '/swap ') || startsWith(github.event.comment.body, '/render'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Switch to the week being reviewed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.issue.number }}
+        run: gh pr checkout "$PR"
+      - name: Install fonts and video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          npm ci --silent
+      - name: Apply the change
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.issue.number }}
+          COMMENT: ${{ github.event.comment.body }}
+          PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+        run: |
+          set -- $(printf '%s' "$COMMENT" | head -n 1 | tr -cd 'a-zA-Z0-9/ -')
+          BRANCH=$(git branch --show-current)
+          if [ "$1" = "/swap" ]; then
+            python3 scripts/plan_week.py --swap "$2" "$3"
+          else
+            python3 scripts/plan_week.py --rerender "${BRANCH#week-}"
+          fi
+          git config user.name "anahad-bot"
+          git config user.email "anahad-bot@users.noreply.github.com"
+          git add queue reviews data
+          git commit -q -m "Revised: $1 $2 $3"
+          git push -q origin "$BRANCH"
+          gh pr edit "$PR" --body-file "$RUNNER_TEMP/pr_body.md"
+          gh pr comment "$PR" --body "Done. The review sheet above is updated (refresh the page if the old picture still shows)."

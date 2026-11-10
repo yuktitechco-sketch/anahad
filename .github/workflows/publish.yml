@@ -1,0 +1,51 @@
+name: 2. Publish to Instagram
+
+on:
+  schedule:
+    - cron: "0 2 * * *"     # 07:30 India time: picture post
+    - cron: "30 13 * * *"   # 19:00 India time: reel
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "What to publish"
+        type: choice
+        options: [post, reel, check]
+        default: check
+      date:
+        description: "Date, as YYYY-MM-DD (leave empty for today)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency: publish
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Publish
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          MEDIA_BASE_URL: ${{ vars.MEDIA_BASE_URL }}
+          KIND: ${{ inputs.kind || (github.event.schedule == '0 2 * * *' && 'post' || 'reel') }}
+          DATE: ${{ inputs.date }}
+        run: |
+          if [ -n "$DATE" ]; then
+            python3 scripts/publish.py "$KIND" --date "$DATE"
+          else
+            python3 scripts/publish.py "$KIND"
+          fi
+      - name: Record what was published
+        run: |
+          git config user.name "anahad-bot"
+          git config user.email "anahad-bot@users.noreply.github.com"
+          git add queue
+          if ! git diff --cached --quiet; then
+            git commit -q -m "Published"
+            git pull -q --rebase origin main
+            git push -q origin main
+          fi

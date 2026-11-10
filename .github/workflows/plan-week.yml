@@ -1,0 +1,61 @@
+name: 1. Plan next week (for approval)
+
+on:
+  schedule:
+    - cron: "30 3 * * 5"   # every Friday 09:00 India time
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "First day, as YYYY-MM-DD (leave empty for next Monday)"
+        required: false
+      days:
+        description: "How many days to prepare"
+        default: "7"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install fonts and video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
+          npm ci --silent
+      - name: Prepare posts and reels
+        id: plan
+        env:
+          START: ${{ inputs.start }}
+          DAYS: ${{ inputs.days || '7' }}
+          PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+        run: |
+          if [ -n "$START" ]; then
+            python3 scripts/plan_week.py --start "$START" --days "$DAYS"
+          else
+            python3 scripts/plan_week.py --days "$DAYS"
+          fi
+      - name: Open the approval request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          START_DAY: ${{ steps.plan.outputs.start }}
+          END_DAY: ${{ steps.plan.outputs.end }}
+        run: |
+          git config user.name "anahad-bot"
+          git config user.email "anahad-bot@users.noreply.github.com"
+          git checkout -b "week-$START_DAY"
+          git add queue reviews data/state.json
+          git commit -q -m "Posts for $START_DAY to $END_DAY"
+          git push -q origin "week-$START_DAY"
+          gh pr create --base main --head "week-$START_DAY" \
+            --title "Approve posts for $START_DAY to $END_DAY" \
+            --body-file "$RUNNER_TEMP/pr_body.md"
+      - name: Keep the Instagram token alive
+        if: always()
+        continue-on-error: true
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: python3 scripts/publish.py refresh

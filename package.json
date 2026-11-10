@@ -1,0 +1,11 @@
+{
+  "name": "anahad",
+  "private": true,
+  "description": "Fonts used to render Anahad posts and reels",
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.0.0",
+    "@fontsource/noto-naskh-arabic": "^5.0.0",
+    "@fontsource/noto-serif-tamil": "^5.0.0",
+    "@fontsource/tiro-devanagari-hindi": "^5.0.0"
+  }
+}
