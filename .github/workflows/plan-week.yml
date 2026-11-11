@@ -11,6 +11,12 @@ on:
       days:
         description: "How many days to prepare"
         default: "7"
+      launch:
+        description: "Picture posts on the first day (1 = normal, 10 = launch day)"
+        default: "1"
+      first:
+        description: "Verse ID for the very first post (optional, for example V039)"
+        required: false
 
 permissions:
   contents: write
@@ -26,20 +32,30 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
           npm ci --silent
+      - name: Note the verses in weeks still waiting for approval
+        run: |
+          mkdir -p "$RUNNER_TEMP/pending"
+          git fetch -q origin '+refs/heads/week-*:refs/remotes/origin/week-*' || true
+          for b in $(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/week-*'); do
+            s="${b#origin/week-}"
+            git show "$b:data/used/$s.json" > "$RUNNER_TEMP/pending/$s.json" 2>/dev/null || rm -f "$RUNNER_TEMP/pending/$s.json"
+          done
       - name: Prepare posts and reels
         id: plan
         env:
           START: ${{ inputs.start }}
           DAYS: ${{ inputs.days || '7' }}
+          LAUNCH: ${{ inputs.launch || '1' }}
+          FIRST: ${{ inputs.first }}
           PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+          PENDING_STATE_DIR: ${{ runner.temp }}/pending
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
         run: |
-          if [ -n "$START" ]; then
-            python3 scripts/plan_week.py --start "$START" --days "$DAYS"
-          else
-            python3 scripts/plan_week.py --days "$DAYS"
-          fi
+          ARGS=(--days "$DAYS" --launch "$LAUNCH")
+          if [ -n "$START" ]; then ARGS+=(--start "$START"); fi
+          if [ -n "$FIRST" ]; then ARGS+=(--first "$FIRST"); fi
+          python3 scripts/plan_week.py "${ARGS[@]}"
       - name: Open the approval request
         if: steps.plan.outputs.start != ''
         env:
@@ -54,7 +70,7 @@ jobs:
           git config user.name "anahad-bot"
           git config user.email "anahad-bot@users.noreply.github.com"
           git checkout -b "week-$START_DAY"
-          git add queue reviews data/state.json
+          git add queue reviews data/used
           git commit -q -m "Posts for $START_DAY to $END_DAY"
           git push -q origin "week-$START_DAY"
           gh pr create --base main --head "week-$START_DAY" \

@@ -3,7 +3,6 @@ import csv, datetime, hashlib, html, json, os, random, shutil, subprocess, tempf
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CFG = json.load(open(os.path.join(ROOT, "config.json"), encoding="utf-8"))
-STATE_PATH = os.path.join(ROOT, "data", "state.json")
 FONTS = "file://" + os.path.join(ROOT, "node_modules", "@fontsource")
 
 
@@ -14,13 +13,35 @@ def load_bank():
     return {r["ID"]: r for r in rows}
 
 
-def load_state():
-    return json.load(open(STATE_PATH, encoding="utf-8"))
+USED_DIR = os.path.join(ROOT, "data", "used")
 
 
-def save_state(state):
-    with open(STATE_PATH, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=1, sort_keys=True)
+def blocked_ids():
+    """Every verse already used or rejected: in approved weeks, and in weeks still waiting for approval.
+
+    Each prepared week keeps its own record in data/used/<start>.json, so two weeks never edit the same file.
+    PENDING_STATE_DIR (set by the workflow) holds the records of weeks whose approval request is still open.
+    """
+    ids = set()
+    folders = [USED_DIR] + ([os.environ["PENDING_STATE_DIR"]] if os.environ.get("PENDING_STATE_DIR") else [])
+    for folder in folders:
+        if os.path.isdir(folder):
+            for name in os.listdir(folder):
+                if name.endswith(".json"):
+                    rec = json.load(open(os.path.join(folder, name), encoding="utf-8"))
+                    ids |= set(rec.get("used", {})) | set(rec.get("skipped", []))
+    return ids
+
+
+def load_week(start):
+    path = os.path.join(USED_DIR, f"{start}.json")
+    return json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"used": {}, "skipped": []}
+
+
+def save_week(start, rec):
+    os.makedirs(USED_DIR, exist_ok=True)
+    with open(os.path.join(USED_DIR, f"{start}.json"), "w", encoding="utf-8") as f:
+        json.dump(rec, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
 
 
@@ -29,9 +50,8 @@ def today_local():
     return datetime.datetime.now(tz).date()
 
 
-def pick(bank, state, kind, date, taken):
-    """Next unused, source-matched verse for this kind ('post' or 'reel') and date."""
-    blocked = set(state["used"]) | set(state["skipped"]) | set(taken)
+def pick(bank, blocked, kind, date, section=None):
+    """Next unused, source-matched verse for this kind ('post' or 'reel') and date (or for a named section)."""
     limit = CFG["max_chars"][kind]
 
     def ok(r):
@@ -40,7 +60,7 @@ def pick(bank, state, kind, date, taken):
                 # Hindi and Sanskrit verses are used only once their meaning is written as an essence, not a literal translation
                 and (r["Religion / section"] not in CFG.get("essence_only_sections", []) or r.get("Meaning style") == "Essence"))
 
-    wanted = CFG["rotation"][kind][date.weekday()]
+    wanted = section or CFG["rotation"][kind][date.weekday()]
     pool = [r for r in bank.values() if ok(r) and r["Religion / section"] == wanted]
     if not pool:  # section used up: fall back to anything that is left
         pool = [r for r in bank.values() if ok(r)]
@@ -256,20 +276,28 @@ def render_reel(row, mp4, cover_jpg):
 
 def render_review(days, jpg):
     """One contact sheet for the whole week, so approval is a single look."""
-    cells = ""
+    cells, extras = "", ""
     for d in days:
         base = "file://" + os.path.join(ROOT, "queue", d["date"])
         label = datetime.date.fromisoformat(d["date"]).strftime("%a %d %b")
-        cells += (f'<div class="day"><h2>{label}</h2><img class="p" src="{base}/post.jpg"><small>POST · {html.escape(d["post"]["ref"])}</small>'
-                  f'<img class="r" src="{base}/reel_cover.jpg"><small>REEL · {html.escape(d["reel"]["ref"])}</small></div>')
-    n = len(days)
-    w = 40 + n * 330
+        cells += (f'<div class="day"><h2>{label}</h2><img src="{base}/post.jpg"><small>POST · {html.escape(d["post"]["ref"])}</small>'
+                  f'<img src="{base}/reel_cover.jpg"><small>REEL · {html.escape(d["reel"]["ref"])}</small></div>')
+        for n, x in enumerate(d.get("extras", []), start=1):
+            extras += (f'<div class="ex"><img src="{base}/{x["file"]}"><small>{label} · EXTRA {n}<br>{html.escape(x["ref"])}</small></div>')
+    per_row = min(len(days), 7)
+    rows = -(-len(days) // 7)
+    w = 40 + per_row * 330
+    if extras:
+        w = max(w, 2350)
+        extras = f'<h1>Launch posts (same day as the first post)</h1><div class="grid">{extras}</div>'
+    h = 20 + rows * 1050 + (430 if extras else 0)
     page = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><style>
 body {{ margin: 0; width: {w}px; background: #1d1512; font-family: sans-serif; color: #f4ead5; }}
-.grid {{ display: flex; gap: 30px; padding: 30px 35px; }} .day {{ width: 300px; }}
-h2 {{ font-size: 24px; margin: 0 0 12px; text-align: center; }} img {{ width: 300px; display: block; border-radius: 6px; }}
+.grid {{ display: flex; flex-wrap: wrap; gap: 30px; padding: 30px 35px 0; }} .day {{ width: 300px; }} .ex {{ width: 224px; }}
+h1 {{ font-size: 26px; margin: 10px 35px 0; color: #e0a63a; }}
+h2 {{ font-size: 24px; margin: 0 0 12px; text-align: center; }} img {{ width: 100%; display: block; border-radius: 6px; }}
 small {{ display: block; font-size: 14px; letter-spacing: .08em; margin: 8px 0 22px; text-align: center; color: #d9b36a; }}
-</style></head><body><div class="grid">{cells}</div></body></html>"""
+</style></head><body>{extras}<div class="grid">{cells}</div></body></html>"""
     png = jpg[:-4] + ".png"
-    _shot(page, png, w, 1090)
+    _shot(page, png, w, h)
     _jpg(png, jpg)

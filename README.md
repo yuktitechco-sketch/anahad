@@ -15,21 +15,21 @@ Posting page: https://yuktitechco-sketch.github.io/anahad/
 
 To change a prepared week, comment on the approval request:
 
-- `/swap 2026-11-18 reel` (or `post`) replaces that verse with another and never offers the rejected one again.
+- `/swap 2026-11-18 reel` replaces that verse with another and never offers the rejected one again (use `post`, `reel`, or `extra3` for the third extra post of a launch day).
 - `/render` redraws the week after you edit a meaning in `data/verse_bank.csv` on that week's branch.
 
 ## One-time setup
 
 1. **Let the automation open approval requests.** Settings → Actions → General → Workflow permissions: "Read and write permissions", and tick "Allow GitHub Actions to create and approve pull requests".
 2. **Turn on the posting page.** Settings → Pages → Source "Deploy from a branch" → branch `main`, folder `/ (root)` → Save.
-3. **First week.** Actions → "1. Plan next week" → Run workflow. To start mid-week, fill in a start date and a number of days.
+3. **First week.** Actions → "1. Plan next week" → Run workflow. To start mid-week, fill in a start date and a number of days. For a launch day with several picture posts, set "Picture posts on the first day".
 
 No Meta app or access token is needed while posting is done by hand.
 
 ## What is in here
 
 - `data/verse_bank.csv`: the verse bank. Only rows whose Status is "Matched to source text" are used. Hindi and Sanskrit verses are used only when their "Meaning style" is "Essence" (the message of the verse, not a word-for-word translation).
-- `data/state.json`: which verses have been used or rejected.
+- `data/used/<start>.json`: which verses each prepared week used or rejected (one file per week).
 - `config.json`: which tradition is used on which weekday, hashtags, labels, timezone, and `publish_mode`.
 - `index.html`: the posting page.
 - `scripts/plan_week.py`: picks verses and draws the posts and reels. Reels are silent; the audio is added in Instagram.

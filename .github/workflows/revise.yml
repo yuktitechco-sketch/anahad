@@ -28,12 +28,22 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-noto-cjk
           npm ci --silent
+      - name: Note the verses in weeks still waiting for approval
+        run: |
+          mkdir -p "$RUNNER_TEMP/pending"
+          git fetch -q origin '+refs/heads/week-*:refs/remotes/origin/week-*' || true
+          for b in $(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/week-*'); do
+            s="${b#origin/week-}"
+            [ "$b" = "origin/$(git branch --show-current)" ] && continue
+            git show "$b:data/used/$s.json" > "$RUNNER_TEMP/pending/$s.json" 2>/dev/null || rm -f "$RUNNER_TEMP/pending/$s.json"
+          done
       - name: Apply the change
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.issue.number }}
           COMMENT: ${{ github.event.comment.body }}
           PR_BODY_FILE: ${{ runner.temp }}/pr_body.md
+          PENDING_STATE_DIR: ${{ runner.temp }}/pending
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
         run: |

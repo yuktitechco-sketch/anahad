@@ -83,5 +83,17 @@
     ]
   },
   "publish_mode": "manual",
-  "posting_page": "https://yuktitechco-sketch.github.io/anahad/"
+  "posting_page": "https://yuktitechco-sketch.github.io/anahad/",
+  "launch_sections": [
+    "Hinduism - Bhagavad Gita",
+    "Hinduism - Sant and bhakti",
+    "Buddhism",
+    "Tamil classics",
+    "Christianity",
+    "Islam - Quran and Hadith",
+    "Confucianism",
+    "Hinduism - Bhagavad Gita",
+    "Hinduism - Sant and bhakti",
+    "Buddhism"
+  ]
 }

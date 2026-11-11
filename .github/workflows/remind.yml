@@ -28,7 +28,9 @@ jobs:
           import json, sys
           date, page = sys.argv[1], sys.argv[2]
           d = json.load(open(f"queue/{date}/day.json", encoding="utf-8"))
-          print(f"Ready to post for {date}:\n\n- Picture post: {d['post']['ref']}\n- Reel: {d['reel']['ref']}\n\nOpen the posting page on your phone: {page}?d={date}")
+          posts = [d['post']] + d.get('extras', [])
+          lines = "\n".join(f"- Picture post: {p['ref']}" for p in posts)
+          print(f"Ready to post for {date}:\n\n{lines}\n- Reel: {d['reel']['ref']}\n\nOpen the posting page on your phone: {page}?d={date}")
           PY
           )
           NUMBER=$(gh issue list --state open --search "Daily posting reminders in:title" --json number --jq '.[0].number')

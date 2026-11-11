@@ -63,16 +63,16 @@ function shift(n) {
   date = fmt(d); history.replaceState(null, '', '?d=' + date); load();
 }
 
-function card(kind, item, base) {
+function card(kind, item, base, title) {
   const isReel = kind === 'reel';
-  const file = isReel ? 'reel.mp4' : 'post.jpg';
+  const file = item.file || (isReel ? 'reel.mp4' : 'post.jpg');
   const name = 'anahad_' + date + '_' + file;
   const el = document.createElement('section');
   el.className = 'card';
   el.innerHTML =
-    '<h2>' + (isReel ? 'REEL' : 'PICTURE POST') + '</h2><p class="ref"></p>' +
+    '<h2>' + title + '</h2><p class="ref"></p>' +
     (isReel ? '<video controls playsinline preload="metadata" poster="' + base + 'reel_cover.jpg" src="' + base + file + '"></video>'
-            : '<img alt="Picture post" src="' + base + file + '">') +
+            : '<img alt="Picture post" loading="lazy" src="' + base + file + '">') +
     '<div class="row"><button class="btn copy">Copy caption</button><button class="btn share">Share</button></div>' +
     '<div class="row"><a class="btn alt" download="' + name + '" href="' + base + file + '">Save ' + (isReel ? 'video' : 'image') + '</a></div>' +
     '<div class="note"></div><pre></pre>' +
@@ -87,7 +87,7 @@ function card(kind, item, base) {
     catch (e) { say('Could not copy. Press and hold the caption below to copy it.'); }
   };
 
-  const key = date + kind;
+  const key = date + kind + file;
   fetch(base + file).then(r => r.blob()).then(b => { blobs[key] = new File([b], name, { type: isReel ? 'video/mp4' : 'image/jpeg' }); }).catch(() => {});
   const shareBtn = el.querySelector('.share');
   shareBtn.onclick = async () => {
@@ -119,7 +119,9 @@ async function load() {
     content.innerHTML = '<p class="empty">Nothing is approved for this day yet.<br>Approve the week on GitHub and it will appear here a few minutes later.</p>';
     return;
   }
-  content.append(card('post', day.post, base), card('reel', day.reel, base));
+  const posts = [day.post].concat(day.extras || []);
+  posts.forEach((p, i) => content.append(card('post', p, base, posts.length > 1 ? 'PICTURE POST ' + (i + 1) + ' OF ' + posts.length : 'PICTURE POST')));
+  content.append(card('reel', day.reel, base, 'REEL'));
 }
 
 document.getElementById('prev').onclick = () => shift(-1);
