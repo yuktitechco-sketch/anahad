@@ -1,0 +1,39 @@
+name: 2. Daily reminder
+
+on:
+  schedule:
+    - cron: "30 1 * * *"   # 07:00 India time
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tell the owner what is ready to post today
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          DATE=$(TZ=Asia/Kolkata date +%F)
+          if [ ! -f "queue/$DATE/day.json" ]; then
+            echo "Nothing approved for $DATE."
+            exit 0
+          fi
+          PAGE=$(python3 -c "import json; print(json.load(open('config.json'))['posting_page'])")
+          BODY=$(python3 - "$DATE" "$PAGE" <<'PY'
+          import json, sys
+          date, page = sys.argv[1], sys.argv[2]
+          d = json.load(open(f"queue/{date}/day.json", encoding="utf-8"))
+          print(f"Ready to post for {date}:\n\n- Picture post: {d['post']['ref']}\n- Reel: {d['reel']['ref']}\n\nOpen the posting page on your phone: {page}?d={date}")
+          PY
+          )
+          NUMBER=$(gh issue list --state open --search "Daily posting reminders in:title" --json number --jq '.[0].number')
+          if [ -z "$NUMBER" ]; then
+            gh issue create --title "Daily posting reminders" --body "A comment is added here every morning when a post and reel are ready. GitHub emails you each comment. Close this issue to stop the reminders."
+            NUMBER=$(gh issue list --state open --search "Daily posting reminders in:title" --json number --jq '.[0].number')
+          fi
+          gh issue comment "$NUMBER" --body "$BODY"

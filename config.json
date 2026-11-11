@@ -81,5 +81,7 @@
     "no_music_sections": [
       "Islam - Quran and Hadith"
     ]
-  }
+  },
+  "publish_mode": "manual",
+  "posting_page": "https://yuktitechco-sketch.github.io/anahad/"
 }

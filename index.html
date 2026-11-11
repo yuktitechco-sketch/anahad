@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anahad · Today's posts</title>
+<style>
+  :root { --bg: #170c1f; --card: #24132e; --line: #4a2f55; --gold: #e0a63a; --cream: #fbefd0; --soft: #cdb898; --ok: #7fbf7f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--cream); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 18px 16px 60px; }
+  header { text-align: center; padding: 10px 0 4px; }
+  header h1 { margin: 0; font: 600 26px/1.2 Georgia, serif; letter-spacing: .04em; }
+  header h1 span { color: var(--gold); }
+  nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 14px 0 6px; }
+  nav button { background: none; border: 1px solid var(--line); color: var(--cream); border-radius: 10px; padding: 10px 16px; font-size: 18px; }
+  nav .date { flex: 1; text-align: center; font-weight: 600; }
+  nav .date small { display: block; font-weight: 400; color: var(--soft); }
+  .how { color: var(--soft); font-size: 14px; margin: 10px 2px 18px; padding-left: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 22px; }
+  .card h2 { margin: 0 0 2px; font-size: 13px; letter-spacing: .16em; color: var(--gold); }
+  .card .ref { margin: 0 0 12px; font-weight: 600; }
+  .card img, .card video { width: 100%; border-radius: 10px; display: block; background: #000; }
+  .row { display: flex; gap: 10px; margin-top: 12px; }
+  .btn { flex: 1; text-align: center; text-decoration: none; border: 0; border-radius: 12px; padding: 13px 10px; font: 600 15px system-ui, sans-serif; background: var(--gold); color: #24130a; }
+  .btn.alt { background: none; color: var(--cream); border: 1px solid var(--line); }
+  pre { white-space: pre-wrap; word-break: break-word; font: 14px/1.5 system-ui, sans-serif; color: var(--soft); background: #1b0f24; border-radius: 10px; padding: 12px; margin: 12px 0 0; max-height: 170px; overflow: auto; }
+  label.done { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: var(--soft); font-size: 15px; }
+  label.done input { width: 20px; height: 20px; accent-color: var(--ok); }
+  .empty { text-align: center; color: var(--soft); padding: 50px 10px; }
+  .note { min-height: 20px; font-size: 14px; color: var(--ok); margin-top: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>अनहद <span>Anahad</span></h1></header>
+  <nav>
+    <button id="prev" aria-label="Previous day">←</button>
+    <div class="date"><span id="dateText"></span><small id="dateNote"></small></div>
+    <button id="next" aria-label="Next day">→</button>
+  </nav>
+  <ol class="how">
+    <li>Tap <b>Copy caption</b>.</li>
+    <li>Tap <b>Share</b> and choose Instagram (or <b>Save</b>, then open Instagram).</li>
+    <li>In Instagram, add a trending audio track, paste the caption, and post.</li>
+  </ol>
+  <div id="content"></div>
+</main>
+<script>
+const IST = 5.5 * 3600 * 1000;
+const fmt = d => d.toISOString().slice(0, 10);
+const todayIST = () => fmt(new Date(Date.now() + IST));
+let date = new URLSearchParams(location.search).get('d') || todayIST();
+const blobs = {};
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { v ? localStorage.setItem(k, '1') : localStorage.removeItem(k); } catch (e) {} }
+};
+
+function shift(n) {
+  const d = new Date(date + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n);
+  date = fmt(d); history.replaceState(null, '', '?d=' + date); load();
+}
+
+function card(kind, item, base) {
+  const isReel = kind === 'reel';
+  const file = isReel ? 'reel.mp4' : 'post.jpg';
+  const name = 'anahad_' + date + '_' + file;
+  const el = document.createElement('section');
+  el.className = 'card';
+  el.innerHTML =
+    '<h2>' + (isReel ? 'REEL' : 'PICTURE POST') + '</h2><p class="ref"></p>' +
+    (isReel ? '<video controls playsinline preload="metadata" poster="' + base + 'reel_cover.jpg" src="' + base + file + '"></video>'
+            : '<img alt="Picture post" src="' + base + file + '">') +
+    '<div class="row"><button class="btn copy">Copy caption</button><button class="btn share">Share</button></div>' +
+    '<div class="row"><a class="btn alt" download="' + name + '" href="' + base + file + '">Save ' + (isReel ? 'video' : 'image') + '</a></div>' +
+    '<div class="note"></div><pre></pre>' +
+    '<label class="done"><input type="checkbox"> Posted</label>';
+  el.querySelector('.ref').textContent = item.ref;
+  el.querySelector('pre').textContent = item.caption;
+  const note = el.querySelector('.note');
+  const say = t => { note.textContent = t; setTimeout(() => { if (note.textContent === t) note.textContent = ''; }, 4000); };
+
+  el.querySelector('.copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(item.caption); say('Caption copied.'); }
+    catch (e) { say('Could not copy. Press and hold the caption below to copy it.'); }
+  };
+
+  const key = date + kind;
+  fetch(base + file).then(r => r.blob()).then(b => { blobs[key] = new File([b], name, { type: isReel ? 'video/mp4' : 'image/jpeg' }); }).catch(() => {});
+  const shareBtn = el.querySelector('.share');
+  shareBtn.onclick = async () => {
+    const f = blobs[key];
+    if (!f) return say('Still loading the file. Try again in a moment.');
+    if (!(navigator.canShare && navigator.canShare({ files: [f] }))) return say('Sharing is not available in this browser. Use Save instead.');
+    try { await navigator.share({ files: [f] }); } catch (e) {}
+  };
+
+  const box = el.querySelector('input');
+  box.checked = !!store.get('posted:' + key);
+  box.onchange = () => store.set('posted:' + key, box.checked);
+  return el;
+}
+
+async function load() {
+  const d = new Date(date + 'T00:00:00Z');
+  document.getElementById('dateText').textContent = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+  document.getElementById('dateNote').textContent = date === todayIST() ? 'Today' : '';
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  const base = 'queue/' + date + '/';
+  let day;
+  try {
+    const r = await fetch(base + 'day.json', { cache: 'no-store' });
+    if (!r.ok) throw 0;
+    day = await r.json();
+  } catch (e) {
+    content.innerHTML = '<p class="empty">Nothing is approved for this day yet.<br>Approve the week on GitHub and it will appear here a few minutes later.</p>';
+    return;
+  }
+  content.append(card('post', day.post, base), card('reel', day.reel, base));
+}
+
+document.getElementById('prev').onclick = () => shift(-1);
+document.getElementById('next').onclick = () => shift(1);
+load();
+</script>
+</body>
+</html>

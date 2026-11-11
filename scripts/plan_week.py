@@ -74,22 +74,29 @@ def finish(start, dates):
         json.dump(dates, f)
     lib.render_review(days, os.path.join(lib.ROOT, "reviews", f"{start}.jpg"))
     repo = os.environ.get("GITHUB_REPOSITORY", "OWNER/REPO")
+    manual = lib.CFG.get("publish_mode") == "manual"
     lines = [f"## Anahad: posts for {dates[0]} to {dates[-1]}", "",
-             f"![review sheet](https://raw.githubusercontent.com/{repo}/week-{start}/reviews/{start}.jpg)", "",
-             "**To approve:** press **Merge pull request**. Each day's post then goes out by itself.", "",
-             "**To change something**, add a comment on this pull request:",
-             "- `/swap 2026-11-18 reel` (or `post`) replaces that verse with a different one",
-             "- `/audio 2026-11-18 flute` puts different music on that day's reel, found by those search words",
-             "- `/audio 2026-11-18 none` makes that day's reel silent",
-             "- `/render` redraws everything after you edit a meaning in `data/verse_bank.csv` on this branch", "",
-             "| Date | Type | Verse | Reference | English meaning | Music |", "|---|---|---|---|---|---|"]
+             f"![review sheet](https://raw.githubusercontent.com/{repo}/week-{start}/reviews/{start}.jpg)", ""]
+    if manual:
+        lines += [f"**To approve:** press **Merge pull request**. Each day's picture, reel and caption then appear on the "
+                  f"[posting page]({lib.CFG.get('posting_page', '')}) for you to post by hand with trending audio.", ""]
+    else:
+        lines += ["**To approve:** press **Merge pull request**. Each day's post then goes out by itself.", ""]
+    lines += ["**To change something**, add a comment on this pull request:",
+              "- `/swap 2026-11-18 reel` (or `post`) replaces that verse with a different one",
+              "- `/render` redraws everything after you edit a meaning in `data/verse_bank.csv` on this branch"]
+    if not manual:
+        lines += ["- `/audio 2026-11-18 flute` puts different music on that day's reel, found by those search words",
+                  "- `/audio 2026-11-18 none` makes that day's reel silent"]
+    head = "| Date | Type | Verse | Reference | English meaning |" + ("" if manual else " Music |")
+    lines += ["", head, "|---|---|---|---|---|" + ("" if manual else "---|")]
     for d in days:
         for kind in ("post", "reel"):
             x = d[kind]
             au = x.get("audio")
             music = "" if kind == "post" else "silent" if not au else (
                 f"[{au['title']} - {au['artist']}]({au['preview']})" if au["preview"] else f"{au['title']} - {au['artist']}")
-            lines.append(f"| {d['date']} | {kind} | {x['id']} | {x['ref']} | {x['meaning']} | {music} |")
+            lines.append(f"| {d['date']} | {kind} | {x['id']} | {x['ref']} | {x['meaning']} |" + ("" if manual else f" {music} |"))
     out = os.environ.get("PR_BODY_FILE", os.path.join(lib.ROOT, ".pr_body.md"))
     open(out, "w", encoding="utf-8").write("\n".join(lines) + "\n")
     if os.environ.get("GITHUB_OUTPUT"):
@@ -180,7 +187,11 @@ def main():
             if kind == "reel":
                 reels.append((day, row))
         dates.append(str(date))
-    choose_audio(reels)
+    if lib.CFG.get("publish_mode") == "manual":
+        for day, _ in reels:
+            day["reel"]["audio"] = None  # audio is added by hand in the Instagram app
+    else:
+        choose_audio(reels)
     for day, _ in reels:
         write_day(day)
     lib.save_state(state)

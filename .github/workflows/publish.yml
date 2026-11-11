@@ -1,9 +1,8 @@
-name: 2. Publish to Instagram
+name: 4. Automatic publishing (not in use)
 
 on:
-  schedule:
-    - cron: "0 2 * * *"     # 07:30 India time: picture post
-    - cron: "30 13 * * *"   # 19:00 India time: reel
+  # No timer: posts are published by hand from the posting page. To go back to automatic publishing,
+  # add a schedule here and set publish_mode to "auto" in config.json.
   workflow_dispatch:
     inputs:
       kind:
@@ -32,7 +31,7 @@ jobs:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           MEDIA_BASE_URL: ${{ vars.MEDIA_BASE_URL }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
-          KIND: ${{ inputs.kind || (github.event.schedule == '0 2 * * *' && 'post' || 'reel') }}
+          KIND: ${{ inputs.kind }}
           DATE: ${{ inputs.date }}
         run: |
           if [ -n "$DATE" ]; then
