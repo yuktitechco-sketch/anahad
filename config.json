@@ -66,18 +66,6 @@
       "SUFI"
     ]
   },
-  "hashtags": {
-    "_all": "#anahad #अनहद #dailyverse #wisdom #spirituality #sacredtexts",
-    "Hinduism - Bhagavad Gita": "#bhagavadgita #gita #krishna #krishnavani #shloka #sanatandharma",
-    "Hinduism - Sant and bhakti": "#ramcharitmanas #tulsidas #bhakti #doha #santvani",
-    "Tamil classics": "#thirukkural #kural #thiruvalluvar #tamilwisdom",
-    "Buddhism": "#dhammapada #buddha #dhamma #buddhism",
-    "Confucianism": "#confucius #analects #chinesephilosophy",
-    "Hinduism - Shiva": "#shiva #mahadev #harharmahadev #shiv #bholenath #omnamahshivaya",
-    "Hinduism - Hanuman": "#hanuman #bajrangbali #hanumanchalisa #jaishreeram #sankatmochan",
-    "Sikhism": "#gurbani #gurunanak #waheguru #sikhi #gurugranthsahib",
-    "Sufi poetry": "#sufi #sufism #babafarid #hafez #sufipoetry"
-  },
   "essence_only_sections": [
     "Hinduism - Bhagavad Gita",
     "Hinduism - Sant and bhakti",
@@ -130,5 +118,87 @@
     "Christianity",
     "Islam - Quran and Hadith"
   ],
-  "gita_speaker": "Krishna"
+  "gita_speaker": "Krishna",
+  "captions": {
+    "_note": "Captions are short on purpose: a hook with the words people search for, the source, one call to action, and at most five hashtags (Instagram's limit).",
+    "hooks": {
+      "Hinduism - Bhagavad Gita": [
+        "कृष्ण की यह बात आज के दिन के लिए है 🦚",
+        "जब मन उलझे, तो गीता की एक पंक्ति काफ़ी है 🦚",
+        "श्रीकृष्ण का संदेश, भगवद्गीता से 🦚",
+        "Krishna's words from the Bhagavad Gita, for whatever today brings 🦚"
+      ],
+      "Hinduism - Shiva": [
+        "हर हर महादेव 🔱 भोलेनाथ की शरण में एक पंक्ति",
+        "महादेव की वाणी, आज के मन के लिए 🔱",
+        "ॐ नमः शिवाय 🔱 आज का शिव संदेश",
+        "For everyone who carries Mahadev in their heart 🔱"
+      ],
+      "Hinduism - Hanuman": [
+        "जय बजरंगबली 🚩 आज का हनुमान संदेश",
+        "संकटमोचन हनुमान की एक पंक्ति, हिम्मत के लिए 🚩",
+        "जय श्री राम 🚩 हनुमान जी से सीखने वाली बात",
+        "Strength and devotion, the Hanuman way 🚩"
+      ],
+      "Hinduism - Sant and bhakti": [
+        "रामचरितमानस की एक पंक्ति, जीवन भर की सीख 🙏",
+        "तुलसीदास जी की वाणी, आज के लिए 🙏",
+        "जय श्री राम 🙏 मानस से एक सीख"
+      ],
+      "Sikhism": [
+        "वाहेगुरु 🙏 गुरबाणी की एक पंक्ति, आज के लिए",
+        "गुरु ग्रंथ साहिब से आज का विचार 🙏",
+        "A line of Gurbani to carry through the day 🙏"
+      ],
+      "Sufi poetry": [
+        "सूफ़ी संतों की वाणी, दिल के लिए 🕊️",
+        "इश्क़ और सब्र की एक पंक्ति, सूफ़ी रंग में 🕊️",
+        "A Sufi line for a restless heart 🕊️"
+      ],
+      "Buddhism": [
+        "बुद्ध की एक पंक्ति, मन की शांति के लिए 🪷",
+        "धम्मपद से आज का विचार 🪷",
+        "A line from the Buddha for a calmer mind 🪷"
+      ],
+      "Tamil classics": [
+        "तिरुक्कुरल की एक पंक्ति: दो हज़ार साल पुरानी, आज भी सच 🌿",
+        "तिरुवल्लुवर की सीख, आज के लिए 🌿",
+        "Two thousand years old and still true: a Kural for today 🌿"
+      ],
+      "Confucianism": [
+        "कन्फ़्यूशियस की एक सीख, आज के लिए 🎋",
+        "A line from Confucius that still holds 🎋"
+      ],
+      "_default": [
+        "आज का विचार 🙏",
+        "एक पंक्ति, जो दिन बदल दे 🙏"
+      ]
+    },
+    "calls": [
+      "उस एक इंसान को भेजें जिसे आज यह सुनना चाहिए। 💛",
+      "Save कर लें, मुश्किल दिन में काम आएगा। 🔖",
+      "इसमें से कौन-सी बात आपके दिल को लगी? कमेंट में बताएँ। 👇",
+      "अगर यह बात सच लगी, तो अपनों के साथ Share करें। 🙏",
+      "रोज़ एक वाणी के लिए Follow करें। 🙏"
+    ],
+    "chants": {
+      "Hinduism - Bhagavad Gita": "कमेंट में लिखें: राधे राधे 🦚",
+      "Hinduism - Shiva": "कमेंट में लिखें: हर हर महादेव 🔱",
+      "Hinduism - Hanuman": "कमेंट में लिखें: जय श्री राम 🚩",
+      "Hinduism - Sant and bhakti": "कमेंट में लिखें: जय श्री राम 🙏",
+      "Sikhism": "कमेंट में लिखें: वाहेगुरु 🙏"
+    },
+    "hashtags": {
+      "Hinduism - Bhagavad Gita": "#krishna #bhagavadgita #radhekrishna #gita #sanatandharma",
+      "Hinduism - Shiva": "#mahadev #harharmahadev #shiva #bholenath #mahakal",
+      "Hinduism - Hanuman": "#hanuman #jaishreeram #bajrangbali #hanumanchalisa #hanumanji",
+      "Hinduism - Sant and bhakti": "#ramcharitmanas #jaishreeram #tulsidas #ram #bhakti",
+      "Sikhism": "#gurbani #waheguru #sikh #gurugranthsahib #sikhism",
+      "Sufi poetry": "#sufi #sufism #sufiquotes #sufipoetry #spirituality",
+      "Buddhism": "#buddha #buddhism #buddhaquotes #dhammapada #mindfulness",
+      "Tamil classics": "#thirukkural #thiruvalluvar #tamil #tamilquotes #wisdom",
+      "Confucianism": "#confucius #confuciusquotes #wisdom #philosophy #quotes",
+      "_default": "#spirituality #wisdom #quotes #bhakti #motivation"
+    }
+  }
 }
