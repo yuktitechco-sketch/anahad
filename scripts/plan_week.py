@@ -87,8 +87,9 @@ def finish(start, dates):
         json.dump(dates, f)
     lib.render_review(days, os.path.join(lib.ROOT, "reviews", f"{start}.jpg"))
     repo = os.environ.get("GITHUB_REPOSITORY", "OWNER/REPO")
+    branch = os.environ.get("REVIEW_BRANCH", f"week-{start}")
     lines = [f"## Anahad: posts for {dates[0]} to {dates[-1]}", "",
-             f"![review sheet](https://raw.githubusercontent.com/{repo}/week-{start}/reviews/{start}.jpg)", ""]
+             f"![review sheet](https://raw.githubusercontent.com/{repo}/{branch}/reviews/{start}.jpg)", ""]
     if MANUAL:
         lines += [f"**To approve:** press **Merge pull request**. Each day's pictures, reel and captions then appear on the "
                   f"[posting page]({lib.CFG.get('posting_page', '')}) for you to post by hand with trending audio.", ""]

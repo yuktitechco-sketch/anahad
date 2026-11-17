@@ -12,26 +12,26 @@
     "post": [
       "Hinduism - Bhagavad Gita",
       "Tamil classics",
-      "Christianity",
+      "Sikhism",
       "Buddhism",
       "Hinduism - Bhagavad Gita",
-      "Islam - Quran and Hadith",
-      "Confucianism"
+      "Sufi poetry",
+      "random"
     ],
     "reel": [
-      "Hinduism - Sant and bhakti",
-      "Buddhism",
-      "Hinduism - Bhagavad Gita",
-      "Christianity",
-      "Tamil classics",
-      "Hinduism - Bhagavad Gita",
-      "Islam - Quran and Hadith"
+      "Hinduism - Shiva",
+      "Hinduism - Hanuman",
+      "random",
+      "random",
+      "random",
+      "random",
+      "random"
     ]
   },
   "tags": {
     "Hinduism - Bhagavad Gita": [
-      "श्लोक",
-      "SHLOKA"
+      "कृष्ण वाणी",
+      "KRISHNA"
     ],
     "Hinduism - Sant and bhakti": [
       "मानस",
@@ -45,42 +45,52 @@
       "धम्मपद",
       "DHAMMAPADA"
     ],
-    "Christianity": [
-      "वचन",
-      "SCRIPTURE"
-    ],
-    "Islam - Quran and Hadith": [
-      "आयत",
-      "AYAH"
-    ],
     "Confucianism": [
       "सूक्ति",
       "ANALECTS"
+    ],
+    "Hinduism - Shiva": [
+      "शिव",
+      "SHIVA"
+    ],
+    "Hinduism - Hanuman": [
+      "हनुमान",
+      "HANUMAN"
+    ],
+    "Sikhism": [
+      "गुरबाणी",
+      "GURBANI"
+    ],
+    "Sufi poetry": [
+      "सूफ़ी",
+      "SUFI"
     ]
   },
   "hashtags": {
     "_all": "#anahad #अनहद #dailyverse #wisdom #spirituality #sacredtexts",
-    "Hinduism - Bhagavad Gita": "#bhagavadgita #gita #krishna #shloka #sanatandharma",
+    "Hinduism - Bhagavad Gita": "#bhagavadgita #gita #krishna #krishnavani #shloka #sanatandharma",
     "Hinduism - Sant and bhakti": "#ramcharitmanas #tulsidas #bhakti #doha #santvani",
     "Tamil classics": "#thirukkural #kural #thiruvalluvar #tamilwisdom",
     "Buddhism": "#dhammapada #buddha #dhamma #buddhism",
-    "Christianity": "#bible #scripture #verseoftheday #kjv",
-    "Islam - Quran and Hadith": "#quran #ayah #islam #quranverses",
-    "Confucianism": "#confucius #analects #chinesephilosophy"
+    "Confucianism": "#confucius #analects #chinesephilosophy",
+    "Hinduism - Shiva": "#shiva #mahadev #harharmahadev #shiv #bholenath #omnamahshivaya",
+    "Hinduism - Hanuman": "#hanuman #bajrangbali #hanumanchalisa #jaishreeram #sankatmochan",
+    "Sikhism": "#gurbani #gurunanak #waheguru #sikhi #gurugranthsahib",
+    "Sufi poetry": "#sufi #sufism #babafarid #hafez #sufipoetry"
   },
   "essence_only_sections": [
     "Hinduism - Bhagavad Gita",
     "Hinduism - Sant and bhakti",
-    "Hinduism - Other scripture"
+    "Hinduism - Other scripture",
+    "Hinduism - Shiva",
+    "Hinduism - Hanuman"
   ],
   "login": "facebook",
   "audio": {
     "mode": "trending",
     "type": "music",
     "audio_volume": 100,
-    "no_music_sections": [
-      "Islam - Quran and Hadith"
-    ]
+    "no_music_sections": []
   },
   "publish_mode": "manual",
   "posting_page": "https://yuktitechco-sketch.github.io/anahad/",
@@ -89,11 +99,36 @@
     "Hinduism - Sant and bhakti",
     "Buddhism",
     "Tamil classics",
-    "Christianity",
-    "Islam - Quran and Hadith",
+    "Sikhism",
+    "Sufi poetry",
     "Confucianism",
-    "Hinduism - Bhagavad Gita",
-    "Hinduism - Sant and bhakti",
-    "Buddhism"
-  ]
+    "Hinduism - Shiva",
+    "Hinduism - Hanuman",
+    "Hinduism - Bhagavad Gita"
+  ],
+  "random_weights": {
+    "reel": {
+      "Hinduism - Bhagavad Gita": 6,
+      "Hinduism - Shiva": 3,
+      "Sikhism": 2,
+      "Sufi poetry": 2,
+      "Hinduism - Sant and bhakti": 1,
+      "Hinduism - Hanuman": 1,
+      "Buddhism": 1,
+      "Tamil classics": 1
+    },
+    "post": {
+      "Sikhism": 2,
+      "Sufi poetry": 2,
+      "Hinduism - Sant and bhakti": 2,
+      "Confucianism": 1,
+      "Hinduism - Shiva": 1,
+      "Hinduism - Hanuman": 1
+    }
+  },
+  "excluded_sections": [
+    "Christianity",
+    "Islam - Quran and Hadith"
+  ],
+  "gita_speaker": "Krishna"
 }

@@ -53,20 +53,31 @@ def today_local():
 def pick(bank, blocked, kind, date, section=None):
     """Next unused, source-matched verse for this kind ('post' or 'reel') and date (or for a named section)."""
     limit = CFG["max_chars"][kind]
+    excluded = set(CFG.get("excluded_sections", []))
+    speaker = CFG.get("gita_speaker")
 
     def ok(r):
-        return (r["Status"] == CFG["only_status"] and r["ID"] not in blocked
+        sec = r["Religion / section"]
+        return (r["Status"] == CFG["only_status"] and r["ID"] not in blocked and sec not in excluded
                 and len(r["Original"]) <= limit and r["Hindi meaning"] and r["English meaning"]
                 # Hindi and Sanskrit verses are used only once their meaning is written as an essence, not a literal translation
-                and (r["Religion / section"] not in CFG.get("essence_only_sections", []) or r.get("Meaning style") == "Essence"))
+                and (sec not in CFG.get("essence_only_sections", []) or r.get("Meaning style") == "Essence")
+                # Gita verses carry the Krishna label, so only verses that Krishna speaks are used
+                and (not speaker or sec != "Hinduism - Bhagavad Gita" or r.get("Speaker") == speaker))
 
-    wanted = section or CFG["rotation"][kind][date.weekday()]
-    pool = [r for r in bank.values() if ok(r) and r["Religion / section"] == wanted]
-    if not pool:  # section used up: fall back to anything that is left
-        pool = [r for r in bank.values() if ok(r)]
-    if not pool:
+    usable = [r for r in bank.values() if ok(r)]
+    if not usable:
         raise SystemExit("The verse bank has no unused, source-matched verses left.")
-    pool.sort(key=lambda r: r["ID"])
+    have = {r["Religion / section"] for r in usable}
+    wanted = section if section and section not in excluded else CFG["rotation"][kind][date.weekday()]
+    if wanted == "random" or wanted not in have:
+        # a 'random' day: a weighted draw that is the same every time it is asked for the same date
+        weights = {s: w for s, w in CFG.get("random_weights", {}).get(kind, {}).items() if s in have}
+        if not weights:
+            weights = {s: 1 for s in have}
+        names = sorted(weights)
+        wanted = random.Random(f"{date} {kind}").choices(names, [weights[n] for n in names])[0]
+    pool = sorted((r for r in usable if r["Religion / section"] == wanted), key=lambda r: r["ID"])
     random.Random(wanted + kind).shuffle(pool)  # fixed order per section, so runs are repeatable
     return pool[0]
 
@@ -87,6 +98,7 @@ def script_of(text):
     for ch in text:
         o = ord(ch)
         if 0x0900 <= o <= 0x097F: return "deva"
+        if 0x0A00 <= o <= 0x0A7F: return "guru"
         if 0x0B80 <= o <= 0x0BFF: return "tamil"
         if 0x0600 <= o <= 0x06FF: return "arabic"
         if 0x4E00 <= o <= 0x9FFF: return "cjk"
@@ -96,6 +108,7 @@ def script_of(text):
 VERSE_STYLE = {  # font stack, size factor, extra css
     "deva": ("Tiro", 1.0, ""),
     "tamil": ("NTamil", 0.74, ""),
+    "guru": ("NGuru", 0.86, ""),
     "arabic": ("NArabic", 1.0, "direction: rtl; line-height: 1.9;"),
     "cjk": ("'Noto Serif CJK SC', 'Noto Serif SC', serif", 0.95, "letter-spacing: .06em;"),
     "latin": ("Cormorant", 1.0, "font-weight: 500;"),
@@ -105,6 +118,7 @@ FACES = f"""
 @font-face {{ font-family: Tiro; src: url({FONTS}/tiro-devanagari-hindi/files/tiro-devanagari-hindi-devanagari-400-normal.woff2); }}
 @font-face {{ font-family: Tiro; src: url({FONTS}/tiro-devanagari-hindi/files/tiro-devanagari-hindi-latin-400-normal.woff2); unicode-range: U+0000-00FF; }}
 @font-face {{ font-family: NTamil; src: url({FONTS}/noto-serif-tamil/files/noto-serif-tamil-tamil-400-normal.woff2); }}
+@font-face {{ font-family: NGuru; src: url({FONTS}/noto-serif-gurmukhi/files/noto-serif-gurmukhi-gurmukhi-400-normal.woff2); }}
 @font-face {{ font-family: NArabic; src: url({FONTS}/noto-naskh-arabic/files/noto-naskh-arabic-arabic-500-normal.woff2); }}
 @font-face {{ font-family: Cormorant; font-weight: 500; src: url({FONTS}/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2); unicode-range: U+0000-00FF, U+2000-206F; }}
 @font-face {{ font-family: Cormorant; font-weight: 500; src: url({FONTS}/cormorant-garamond/files/cormorant-garamond-latin-ext-500-normal.woff2); unicode-range: U+0100-024F, U+1E00-1EFF; }}
@@ -152,11 +166,12 @@ def _parts(row):
     if "\n" not in orig and "। " in orig:  # a one-line chaupai: break it at the half-way mark
         orig = orig.replace("। ", "।\n", 1)
     verse = "<br>".join(html.escape(l) for l in orig.split("\n"))
-    if script_of(orig) in ("deva", "tamil", "arabic") and max(len(l) for l in orig.split("\n")) <= 48:
+    if script_of(orig) in ("deva", "tamil", "arabic", "guru") and max(len(l) for l in orig.split("\n")) <= 48:
         extra += " white-space: nowrap;"  # keep each line of the verse whole; the text shrinks to fit instead
     return dict(tag_hi=html.escape(tag_hi), tag_en=html.escape(tag_en), font=font, factor=factor, extra=extra, verse=verse,
                 hi=html.escape(row["Hindi meaning"]), en=html.escape(row["English meaning"]),
                 src=html.escape(row["Author / Text"].upper()) + " · " + html.escape(row["Reference"]),
+                src_fit=min(1.0, 40 / max(1, len(row["Author / Text"]) + len(row["Reference"]) + 3)),
                 name_hi=CFG["page_name_hi"], name_en=CFG["page_name_en"])
 
 
@@ -178,7 +193,7 @@ body {{ width: 1080px; height: 1350px; overflow: hidden; color: #2A1F1A;
 .rule:after {{ content: ""; position: absolute; left: 50%; top: -5px; width: 12px; height: 12px; background: #D99A2B; transform: translateX(-50%) rotate(45deg); }}
 .hi {{ font: 400 calc(33px * var(--s))/1.6 Tiro; color: #3b2d25; }}
 .en {{ font: italic 500 calc(35px * var(--s))/1.4 Cormorant; color: #5a463a; margin-top: calc(30px * var(--s)); }}
-.src {{ position: absolute; bottom: 150px; left: 0; right: 0; text-align: center; font: 600 25px Cormorant; letter-spacing: .32em; color: #B8801C; }}
+.src {{ position: absolute; bottom: 150px; left: 40px; right: 40px; text-align: center; font: 600 calc(25px * {p['src_fit']}) Cormorant; letter-spacing: .32em; color: #B8801C; }}
 .name {{ position: absolute; bottom: 92px; left: 0; right: 0; text-align: center; font: 400 30px Tiro; color: #2A1F1A; }}
 .name b {{ font: 600 22px Cormorant; letter-spacing: .4em; margin-left: 16px; color: #6b5548; }}
 </style></head><body>
@@ -219,7 +234,7 @@ svg.sky {{ position: absolute; inset: 0; }}
 .rule:after {{ content: ""; position: absolute; left: 50%; top: -6px; width: 14px; height: 14px; background: #E0A63A; transform: translateX(-50%) rotate(45deg); }}
 .hi {{ font: 400 calc(40px * var(--s))/1.6 Tiro; color: #F1E2C0; {show(2)} }}
 .en {{ font: italic 500 calc(43px * var(--s))/1.4 Cormorant; color: #DCC8A4; margin-top: calc(34px * var(--s)); {show(3)} }}
-.src {{ position: absolute; bottom: 470px; left: 0; right: 0; text-align: center; font: 600 28px Cormorant; letter-spacing: .32em; color: #F2B755; {show(4)} }}
+.src {{ position: absolute; bottom: 470px; left: 40px; right: 40px; text-align: center; font: 600 calc(28px * {p['src_fit']}) Cormorant; letter-spacing: .32em; color: #F2B755; {show(4)} }}
 .name {{ position: absolute; bottom: 395px; left: 0; right: 0; text-align: center; font: 400 36px Tiro; {show(4)} }}
 .name b {{ font: 600 24px Cormorant; letter-spacing: .4em; margin-left: 16px; color: #DCC8A4; }}
 </style></head><body>

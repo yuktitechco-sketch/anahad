@@ -5,6 +5,7 @@
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.0.0",
     "@fontsource/noto-naskh-arabic": "^5.0.0",
+    "@fontsource/noto-serif-gurmukhi": "^5.3.0",
     "@fontsource/noto-serif-tamil": "^5.0.0",
     "@fontsource/tiro-devanagari-hindi": "^5.0.0"
   }
