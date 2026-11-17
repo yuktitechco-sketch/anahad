@@ -91,7 +91,7 @@ def caption(row):
     cap, sec = CFG["captions"], row["Religion / section"]
     n = int(hashlib.md5(row["ID"].encode()).hexdigest(), 16)
     hooks = cap["hooks"].get(sec) or cap["hooks"]["_default"]
-    calls = list(cap["calls"]) + ([cap["chants"][sec]] if sec in cap.get("chants", {}) else [])
+    calls = cap["calls"]
     tags = (cap["hashtags"].get(sec) or cap["hashtags"]["_default"]).split()[:5]  # Instagram allows five
     return "\n".join([hooks[n % len(hooks)], "", f"📖 {row['Author / Text']}, {row['Reference']}", "",
                       calls[(n // 7) % len(calls)], "", " ".join(tags)])
