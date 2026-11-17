@@ -83,14 +83,18 @@ def pick(bank, blocked, kind, date, section=None):
 
 
 def caption(row):
-    tags = CFG["hashtags"]
-    return "\n".join([
-        row["Original"], "", row["Hindi meaning"], "", row["English meaning"], "",
-        f"— {row['Author / Text']}, {row['Reference']}", ".",
-        "अनहद · Anahad — a verse a day from the world's sacred texts.",
-        "The lines under the verse give its essence in our own words, not a word-for-word translation.", ".",
-        (tags["_all"] + " " + tags.get(row["Religion / section"], "")).strip(),
-    ])
+    """A short caption: a searchable hook, the source, one call to action, and at most five hashtags.
+
+    The verse and its meaning are on the picture or reel itself, so the caption does not repeat them.
+    The wording is picked from the lists in config.json; the same verse always gets the same caption.
+    """
+    cap, sec = CFG["captions"], row["Religion / section"]
+    n = int(hashlib.md5(row["ID"].encode()).hexdigest(), 16)
+    hooks = cap["hooks"].get(sec) or cap["hooks"]["_default"]
+    calls = list(cap["calls"]) + ([cap["chants"][sec]] if sec in cap.get("chants", {}) else [])
+    tags = (cap["hashtags"].get(sec) or cap["hashtags"]["_default"]).split()[:5]  # Instagram allows five
+    return "\n".join([hooks[n % len(hooks)], "", f"📖 {row['Author / Text']}, {row['Reference']}", "",
+                      calls[(n // 7) % len(calls)], "", " ".join(tags)])
 
 
 # ---------------------------------------------------------------- rendering

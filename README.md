@@ -27,6 +27,8 @@ To change a prepared week, comment on the approval request:
 
 All of this is set in `config.json` (`rotation`, `random_weights`, `excluded_sections`).
 
+**Captions** are short: a hook with the words people search for, the source, one call to action, and five hashtags (Instagram's limit). The verse itself is not repeated in the caption. The wording lists are under `captions` in `config.json`.
+
 ## One-time setup
 
 1. **Let the automation open approval requests.** Settings → Actions → General → Workflow permissions: "Read and write permissions", and tick "Allow GitHub Actions to create and approve pull requests".
