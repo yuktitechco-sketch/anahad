@@ -171,7 +171,7 @@ def _parts(row):
     return dict(tag_hi=html.escape(tag_hi), tag_en=html.escape(tag_en), font=font, factor=factor, extra=extra, verse=verse,
                 hi=html.escape(row["Hindi meaning"]), en=html.escape(row["English meaning"]),
                 src=html.escape(row["Author / Text"].upper()) + " · " + html.escape(row["Reference"]),
-                src_fit=min(1.0, 40 / max(1, len(row["Author / Text"]) + len(row["Reference"]) + 3)),
+                src_fit=max(0.74, min(1.0, 40 / max(1, len(row["Author / Text"]) + len(row["Reference"]) + 3))),
                 name_hi=CFG["page_name_hi"], name_en=CFG["page_name_en"])
 
 
@@ -193,7 +193,7 @@ body {{ width: 1080px; height: 1350px; overflow: hidden; color: #2A1F1A;
 .rule:after {{ content: ""; position: absolute; left: 50%; top: -5px; width: 12px; height: 12px; background: #D99A2B; transform: translateX(-50%) rotate(45deg); }}
 .hi {{ font: 400 calc(33px * var(--s))/1.6 Tiro; color: #3b2d25; }}
 .en {{ font: italic 500 calc(35px * var(--s))/1.4 Cormorant; color: #5a463a; margin-top: calc(30px * var(--s)); }}
-.src {{ position: absolute; bottom: 150px; left: 40px; right: 40px; text-align: center; font: 600 calc(25px * {p['src_fit']}) Cormorant; letter-spacing: .32em; color: #B8801C; }}
+.src {{ position: absolute; bottom: 150px; left: 40px; right: 40px; text-align: center; font: 600 calc(25px * {p['src_fit']})/1.5 Cormorant; letter-spacing: .32em; color: #B8801C; }}
 .name {{ position: absolute; bottom: 92px; left: 0; right: 0; text-align: center; font: 400 30px Tiro; color: #2A1F1A; }}
 .name b {{ font: 600 22px Cormorant; letter-spacing: .4em; margin-left: 16px; color: #6b5548; }}
 </style></head><body>
@@ -234,7 +234,7 @@ svg.sky {{ position: absolute; inset: 0; }}
 .rule:after {{ content: ""; position: absolute; left: 50%; top: -6px; width: 14px; height: 14px; background: #E0A63A; transform: translateX(-50%) rotate(45deg); }}
 .hi {{ font: 400 calc(40px * var(--s))/1.6 Tiro; color: #F1E2C0; {show(2)} }}
 .en {{ font: italic 500 calc(43px * var(--s))/1.4 Cormorant; color: #DCC8A4; margin-top: calc(34px * var(--s)); {show(3)} }}
-.src {{ position: absolute; bottom: 470px; left: 40px; right: 40px; text-align: center; font: 600 calc(28px * {p['src_fit']}) Cormorant; letter-spacing: .32em; color: #F2B755; {show(4)} }}
+.src {{ position: absolute; bottom: 470px; left: 40px; right: 40px; text-align: center; font: 600 calc(28px * {p['src_fit']})/1.5 Cormorant; letter-spacing: .32em; color: #F2B755; {show(4)} }}
 .name {{ position: absolute; bottom: 395px; left: 0; right: 0; text-align: center; font: 400 36px Tiro; {show(4)} }}
 .name b {{ font: 600 24px Cormorant; letter-spacing: .4em; margin-left: 16px; color: #DCC8A4; }}
 </style></head><body>

@@ -18,6 +18,15 @@ To change a prepared week, comment on the approval request:
 - `/swap 2026-11-18 reel` replaces that verse with another and never offers the rejected one again (use `post`, `reel`, or `extra3` for the third extra post of a launch day).
 - `/render` redraws the week after you edit a meaning in `data/verse_bank.csv` on that week's branch.
 
+## What gets posted
+
+- **Reels:** Monday is Shiva, Tuesday is Hanuman; the other days are a weighted random draw that favours Krishna (Gita verses spoken by Krishna) and Shiva, with Sikh scripture, Sufi saints, Ramcharitmanas, Dhammapada and Kural mixed in.
+- **Picture posts:** Gita on Monday and Friday, Kural on Tuesday, Sikh scripture on Wednesday, Dhammapada on Thursday, Sufi saints on Saturday, a random pick on Sunday.
+- Bible and Quran verses are no longer used (`excluded_sections` in `config.json`).
+- A verse that has been prepared once is never picked again.
+
+All of this is set in `config.json` (`rotation`, `random_weights`, `excluded_sections`).
+
 ## One-time setup
 
 1. **Let the automation open approval requests.** Settings → Actions → General → Workflow permissions: "Read and write permissions", and tick "Allow GitHub Actions to create and approve pull requests".
